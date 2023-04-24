@@ -1,4 +1,5 @@
 import { getToken } from "next-auth/jwt";
+import { useSession } from "next-auth/react";
 import { NextRequest, NextResponse } from "next/server";
 
 export default async function middleware(req: NextRequest) {
@@ -10,14 +11,23 @@ export default async function middleware(req: NextRequest) {
     secret: process.env.NEXTAUTH_SECRET,
   });
 
-  const pattern = /\/protected/;
-
-  if (!session && pattern.test(path)) {
+  if (!session && path.startsWith("/protected")) {
     return NextResponse.redirect(new URL("/login", req.url));
   } else if (session && (path === "/login" || path === "/register")) {
-    return NextResponse.redirect(new URL("/protected", req.url));
+    return NextResponse.redirect(new URL("/protected/user/findride", req.url));
   }
+
+  if (session && path === "/protected" && session.picture) {
+    return NextResponse.redirect(new URL("/protected/admin", req.url));
+  } else if (session && path === "/protected" && !session.picture) {
+    return NextResponse.redirect(new URL("/protected/user/findride", req.url));
+  }
+
   if (session && path === "/") {
-    return NextResponse.redirect(new URL("/protected", req.url));
+    return NextResponse.redirect(new URL("/protected/user/findride", req.url));
+  }
+
+  if (path.startsWith("/protected/admin") && !session?.picture) {
+    return NextResponse.redirect(new URL("/protected/user/findride", req.url));
   }
 }

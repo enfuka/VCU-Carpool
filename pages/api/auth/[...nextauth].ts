@@ -1,6 +1,7 @@
 import NextAuth from "next-auth";
 import CredentialsProvider from "next-auth/providers/credentials";
 import { compare } from "bcrypt";
+import { useSession } from "next-auth/react";
 
 export default NextAuth({
   // secret: process.env.NEXTAUTH_SECRET,
@@ -21,15 +22,31 @@ export default NextAuth({
           "SELECT user_id as id, first_name as name, email, password FROM `Users` WHERE email=?";
         const values = [email];
 
-        const endpoint = `${process.env.NEXTAUTH_URL}/api/query`;
-        const res = await fetch(endpoint, {
+        const endpoint1 = `${process.env.NEXTAUTH_URL}/api/query`;
+        const res1 = await fetch(endpoint1, {
           method: "POST",
           body: JSON.stringify({ query, values }),
           headers: { "Content-Type": "application/json" },
         });
 
-        const userArr = await res.json();
+        const endpoint2 = `${process.env.NEXTAUTH_URL}/api/auth/isadmin`;
+        const res2 = await fetch(endpoint2, {
+          method: "POST",
+          body: JSON.stringify({ email }),
+          headers: { "Content-Type": "application/json" },
+        });
+
+        var isAdmin = false;
+        const adminArr = await res2.json();
+        if (adminArr[0].cnt === 1) {
+          isAdmin = true;
+        }
+        console.log(adminArr);
+        console.log(isAdmin);
+
+        const userArr = await res1.json();
         const user = userArr[0];
+        user.image = isAdmin;
         console.log(user);
         console.log(user.password);
         // if user doesn't exist or password doesn't match
