@@ -9,7 +9,7 @@ export default async function handler(
 
   const mysql = require("mysql2/promise");
   // create the connection
-  const pool = mysql.createPool({
+  const connection = await mysql.createConnection({
     host: process.env.DB_HOST,
     user: process.env.DB_USER,
     password: process.env.DB_PASS,
@@ -30,7 +30,7 @@ export default async function handler(
     ride_ID,
   ];
 
-  const [result] = await pool.execute(query, values);
-
+  const [result] = await connection.execute(query, values);
+  connection.end();
   res.status(200).json(result);
 }

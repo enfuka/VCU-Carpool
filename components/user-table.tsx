@@ -2,12 +2,23 @@
 import TableLoader from "app/protected/admin/loading";
 import UserModalBox from "./user-edit-modal";
 import RideModalBox from "./ride-edit-modal";
+import RequestModalBox from "./request-modal";
 import SimpleMap from "./map";
 // @ts-expect-error
 import MUIDataTable from "mui-datatables";
 import useSWR from "swr";
 import Button from "@mui/material/Button";
 import KeyboardDoubleArrowRightIcon from "@mui/icons-material/KeyboardDoubleArrowRight";
+import ArrowCircleRightIcon from "@mui/icons-material/ArrowCircleRight";
+import TripOriginIcon from "@mui/icons-material/TripOrigin";
+import SportsScoreIcon from "@mui/icons-material/SportsScore";
+import PlaceIcon from "@mui/icons-material/Place";
+import SpeakerNotesIcon from "@mui/icons-material/SpeakerNotes";
+import AccessTimeIcon from "@mui/icons-material/AccessTime";
+import PersonOutlineIcon from "@mui/icons-material/PersonOutline";
+import AirlineSeatReclineExtraIcon from "@mui/icons-material/AirlineSeatReclineExtra";
+import AttachMoneyIcon from "@mui/icons-material/AttachMoney";
+import DirectionsCarIcon from "@mui/icons-material/DirectionsCar";
 import { useEffect, useState } from "react";
 import {
   Paper,
@@ -18,109 +29,98 @@ import {
   TableHead,
   TableRow,
 } from "@mui/material";
+import toast from "react-hot-toast";
 // @ts-expect-error
 export default function UserTable({ type }) {
   const [isActive, setIsActive] = useState(false);
   const [route, setRoute] = useState({});
-
+  const [rowsExpanded, setRowsExpanded] = useState([]);
   const [rowID, setRowID] = useState(-1);
-
   // @ts-expect-error
   function handleState(state) {
     setIsActive(state);
   }
 
-  const [user, ride] = [
-    [
-      "ID",
-      "Name",
-      "E-mail",
-      "Gender",
-      "Phone",
-      {
-        name: "",
-        options: {
-          filter: false,
-          sort: false,
-          empty: true,
-          // @ts-expect-error
-          customBodyRenderLite: (dataIndex, rowIndex) => {
-            return (
-              <Button
-                variant="contained"
-                onClick={(e) => {
-                  e.stopPropagation();
-                  setRowID(data[dataIndex][0]);
-                  console.log(rowID);
-                  setIsActive(!isActive);
-                }}
-              >
-                Edit
-              </Button>
-            );
-          },
+  // Display toaster once after loading.
+  useEffect(() => {
+    let ignore = false;
+
+    if (!ignore)
+      toast("Click on a ride to see the route on the map!", {
+        duration: 6000,
+        position: "bottom-center",
+        icon: "👆",
+      });
+    return () => {
+      ignore = true;
+    };
+  }, []);
+  useEffect(() => {
+    let ignore = false;
+
+    if (!ignore)
+      toast("Click on the arrow on the left to see ride details", {
+        duration: 8000,
+        position: "bottom-left",
+        icon: "👆",
+      });
+    return () => {
+      ignore = true;
+    };
+  }, []);
+
+  const columns = [
+    {
+      name: "FROM",
+      options: {
+        //customHeadRender: () => null,
+      },
+    },
+    {
+      name: "",
+      options: {
+        filter: false,
+        sort: false,
+        empty: true,
+        //customHeadRender: () => null,
+        // @ts-expect-error
+        customBodyRenderLite: (dataIndex, rowIndex) => {
+          return <ArrowCircleRightIcon color="success" />;
         },
       },
-    ],
-    [
-      {
-        name: "FROM",
+    },
+    {
+      name: "TO",
+      options: {
+        //customHeadRender: () => null,
       },
-      {
-        name: "",
-        options: {
-          filter: false,
-          sort: false,
-          empty: true,
-          // @ts-expect-error
-          customBodyRenderLite: (dataIndex, rowIndex) => {
-            return <KeyboardDoubleArrowRightIcon color="success" />;
-          },
+    },
+    {
+      name: "",
+      options: {
+        filter: false,
+        sort: false,
+        empty: true,
+        // @ts-expect-error
+        customBodyRenderLite: (dataIndex, rowIndex) => {
+          return (
+            <Button
+              variant="contained"
+              size="small"
+              onClick={(e) => {
+                e.stopPropagation();
+                setRowID(data[dataIndex][4]);
+                console.log(rowID);
+                setIsActive(!isActive);
+              }}
+            >
+              BOOK
+            </Button>
+          );
         },
       },
-      {
-        name: "TO",
-      },
-      {
-        name: "",
-        options: {
-          filter: false,
-          sort: false,
-          empty: true,
-          // @ts-expect-error
-          customBodyRenderLite: (dataIndex, rowIndex) => {
-            return (
-              <Button
-                variant="contained"
-                onClick={(e) => {
-                  e.stopPropagation();
-                  setRowID(data[dataIndex][0]);
-                  console.log(rowID);
-                  setIsActive(!isActive);
-                }}
-              >
-                Edit
-              </Button>
-            );
-          },
-        },
-      },
-    ],
+    },
   ];
-  let columns: string[] = [];
-  switch (type) {
-    case "user":
-      // @ts-expect-error
-      columns = user;
-      break;
-    case "ride":
-      // @ts-expect-error
-      columns = ride;
-      break;
-    default:
-    case "user":
-      break;
-  }
 
   // @ts-expect-error
   const fetcher = (...args) => fetch(...args).then((res) => res.json());
@@ -148,13 +148,49 @@ export default function UserTable({ type }) {
     responsive: "standard",
     selectableRows: "none",
     expandableRows: true,
-    searchAlwaysOpen: true,
+    searchAlwaysOpen: false,
     expandableRowsHeader: false,
-    expandableRowsOnClick: true,
+    expandableRowsOnClick: false,
     download: false,
-    viewColumns: false,
+    filter: false,
+    search: true,
     print: false,
+    viewColumns: false,
     searchPlaceholder: "Search address",
+    rowsExpanded: rowsExpanded,
+    textLabels: {
+      body: {
+        noMatch: "No rides available for that address",
+      },
+      pagination: {
+        rowsPerPage: "Show:",
+      },
+    },
+    // @ts-expect-error
+    onTableChange: (action, tableState) => {
+      console.log(action);
+      switch (action) {
+        case "rowExpansionChange":
+          console.log(action);
+          console.log(tableState);
+          var rowsExpanded = tableState.expandedRows.data.map(
+            // @ts-expect-error
+            (item) => item.index
+          );
+
+          if (rowsExpanded.length > 1) {
+            // limiting would go here
+            rowsExpanded = rowsExpanded.slice(-1);
+          }
+
+          console.log(rowsExpanded);
+
+          setRowsExpanded(rowsExpanded);
+
+          break;
+      }
+    },
+
     // @ts-expect-error
     onRowClick: (rowData, rowMeta) => {
       rowClickHandler(rowMeta);
@@ -175,45 +211,77 @@ export default function UserTable({ type }) {
                 <Table aria-label="simple table">
                   <TableBody>
                     <TableRow>
-                      <TableCell>Going from</TableCell>
+                      <TableCell>
+                        <PlaceIcon sx={{ mr: 2 }} />
+                        From
+                      </TableCell>
                       <TableCell align="left">
                         {data[rowMeta.dataIndex][2]}
                       </TableCell>
                     </TableRow>
                     <TableRow>
-                      <TableCell>Going to</TableCell>
+                      <TableCell>
+                        <SportsScoreIcon sx={{ mr: 2 }} />
+                        To
+                      </TableCell>
                       <TableCell align="left">
                         {data[rowMeta.dataIndex][3]}
                       </TableCell>
                     </TableRow>
                     <TableRow>
-                      <TableCell>Leaving at</TableCell>
+                      <TableCell>
+                        <AccessTimeIcon sx={{ mr: 2 }} />
+                        Leaving
+                      </TableCell>
                       <TableCell align="left">
                         {data[rowMeta.dataIndex][6]}
                       </TableCell>
                     </TableRow>
                     <TableRow>
-                      <TableCell>Driver</TableCell>
+                      <TableCell>
+                        <PersonOutlineIcon sx={{ mr: 2 }} />
+                        Driver
+                      </TableCell>
                       <TableCell align="left">
                         {data[rowMeta.dataIndex][7]}
                       </TableCell>
                     </TableRow>
                     <TableRow>
-                      <TableCell>Available Seats</TableCell>
+                      <TableCell>
+                        <AirlineSeatReclineExtraIcon sx={{ mr: 2 }} />
+                        Seats
+                      </TableCell>
                       <TableCell align="left">
-                        {data[rowMeta.dataIndex][8]}
+                        {data[rowMeta.dataIndex][8]} (filled/offered)
                       </TableCell>
                     </TableRow>
                     <TableRow>
-                      <TableCell>Fare</TableCell>
+                      <TableCell>
+                        <AttachMoneyIcon sx={{ mr: 2 }} />
+                        Fare
+                      </TableCell>
                       <TableCell align="left">
                         ${data[rowMeta.dataIndex][9]}
                       </TableCell>
                     </TableRow>
                     <TableRow>
-                      <TableCell>Car</TableCell>
+                      <TableCell>
+                        <DirectionsCarIcon sx={{ mr: 2 }} />
+                        Car
+                      </TableCell>
                       <TableCell align="left">
                         {data[rowMeta.dataIndex][10]}
+                      </TableCell>
+                    </TableRow>
+                    <TableRow>
+                      <TableCell>
+                        <SpeakerNotesIcon sx={{ mr: 2 }} />
+                        Notes
+                      </TableCell>
+                      <TableCell align="left">
+                        {data[rowMeta.dataIndex][11]
+                          ? data[rowMeta.dataIndex][11]
+                          : "No notes"}
                       </TableCell>
                     </TableRow>
                   </TableBody>
@@ -232,14 +300,17 @@ export default function UserTable({ type }) {
   return (
     <>
       <SimpleMap route={route} />
-      {isActive &&
+      {/* {isActive &&
         (type == "user" ? (
           <UserModalBox modalHandler={handleState} id={rowID} type={type} />
         ) : (
           <RideModalBox modalHandler={handleState} id={rowID} type={type} />
-        ))}
+        ))} */}
+      {isActive && (
+        <RequestModalBox modalHandler={handleState} id={rowID} type={type} />
+      )}
       <MUIDataTable
-        title={`${capitalize(type)} List`}
+        title={`Available Rides:`}
         data={data}
         columns={columns}
         options={options}

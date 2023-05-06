@@ -9,7 +9,7 @@ export default async function handler(
 
   const mysql = require("mysql2/promise");
   // create the connection
-  const pool = mysql.createPool({
+  const connection = await mysql.createConnection({
     host: process.env.DB_HOST,
     user: process.env.DB_USER,
     password: process.env.DB_PASS,
@@ -20,14 +20,16 @@ export default async function handler(
     "UPDATE `Users` SET first_name=?, last_name=?, gender=?, phone=? WHERE user_ID=?";
   const values = [first_name, last_name, gender, phone, user_ID];
 
-  const [result] = await pool.execute(query, values);
+  const [result] = await connection.execute(query, values);
 
   // Admin toggle
   if (admin == "0" && isAdmin == 1) {
-    await pool.execute("DELETE FROM Admins WHERE user_ID=?;", [user_ID]);
+    await connection.execute("DELETE FROM Admins WHERE user_ID=?;", [user_ID]);
   } else if (admin == "1" && isAdmin == 0) {
-    await pool.execute("INSERT INTO Admins (user_ID) VALUES(?);", [user_ID]);
+    await connection.execute("INSERT INTO Admins (user_ID) VALUES(?);", [
+      user_ID,
+    ]);
   }
-
+  connection.end();
   res.status(200).json(result);
 }

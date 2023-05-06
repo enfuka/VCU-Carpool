@@ -1,14 +1,20 @@
 "use client";
 
-import { Fragment } from "react";
+import { Fragment, useState } from "react";
 import { usePathname } from "next/navigation";
 import { Disclosure, Menu, Transition } from "@headlessui/react";
 import { Bars3Icon, XMarkIcon } from "@heroicons/react/24/outline";
 import { signIn, signOut } from "next-auth/react";
 import Image from "next/image";
+import { Button } from "@mui/material";
+import LogoutIcon from "@mui/icons-material/Logout";
+import PersonOutlineIcon from "@mui/icons-material/PersonOutline";
+import { useRouter } from "next/navigation";
+import LoadingDots from "@/components/loading-dots";
 
 const navigation = [
   { name: "Find Ride", href: "/protected/user/findride" },
+  { name: "Create Ride", href: "/protected/user/createride" },
   { name: "My Rides", href: "/protected/user/myrides" },
 ];
 
@@ -17,7 +23,9 @@ function classNames(...classes: string[]) {
 }
 
 export default function Navbar({ user }: { user: any }) {
+  const router = useRouter();
   const pathname = usePathname();
+  const [loading, setLoading] = useState(false);
 
   return (
     <Disclosure as="nav" className="z-50 bg-white shadow-sm">
@@ -27,27 +35,12 @@ export default function Navbar({ user }: { user: any }) {
             <div className="flex h-16 justify-between">
               <div className="flex">
                 <div className="flex flex-shrink-0 items-center">
-                  <svg
-                    width="32"
-                    height="32"
-                    viewBox="0 0 32 32"
-                    fill="none"
-                    className="text-gray-100"
-                    xmlns="http://www.w3.org/2000/svg"
-                  >
-                    <rect
-                      width="100%"
-                      height="100%"
-                      rx="16"
-                      fill="currentColor"
-                    />
-                    <path
-                      fillRule="evenodd"
-                      clipRule="evenodd"
-                      d="M17.6482 10.1305L15.8785 7.02583L7.02979 22.5499H10.5278L17.6482 10.1305ZM19.8798 14.0457L18.11 17.1983L19.394 19.4511H16.8453L15.1056 22.5499H24.7272L19.8798 14.0457Z"
-                      fill="black"
-                    />
-                  </svg>
+                  <Image
+                    src="/vcu_ram.svg"
+                    height={72}
+                    width={72}
+                    alt={`${user?.name || "placeholder"} avatar`}
+                  />
                 </div>
                 <div className="hidden sm:-my-px sm:ml-6 sm:flex sm:space-x-8">
                   {navigation.map((item) => (
@@ -75,7 +68,7 @@ export default function Navbar({ user }: { user: any }) {
                       <Image
                         className="h-8 w-8 rounded-full"
                         // src={user?.image || "https://avatar.vercel.sh/leerob"}
-                        src={"https://avatar.vercel.sh/leerob"}
+                        src="/avatar.png"
                         height={32}
                         width={32}
                         alt={`${user?.name || "placeholder"} avatar`}
@@ -93,29 +86,78 @@ export default function Navbar({ user }: { user: any }) {
                   >
                     <Menu.Items className="absolute right-0 z-10 mt-2 w-48 origin-top-right rounded-md bg-white py-1 shadow-lg ring-1 ring-black ring-opacity-5 focus:outline-none">
                       {user ? (
-                        <Menu.Item>
-                          {({ active }) => (
-                            <>
-                              <div className="ml-3">
-                                <div className="text-base font-medium text-gray-800">
-                                  {user.name}
+                        <>
+                          <Menu.Item>
+                            {({ active }) => (
+                              <>
+                                <div className="ml-3">
+                                  <div className="text-base font-medium text-gray-800">
+                                    {user.name}
+                                  </div>
+                                  <div className="text-sm font-medium text-gray-500">
+                                    {user.email}
+                                  </div>
                                 </div>
-                                <div className="text-sm font-medium text-gray-500">
-                                  {user.email}
-                                </div>
-                              </div>
-                              <button
-                                className={classNames(
-                                  active ? "bg-gray-100" : "",
-                                  "flex w-full px-4 py-2 text-sm text-gray-700"
-                                )}
-                                onClick={() => signOut()}
-                              >
-                                Sign out
-                              </button>
-                            </>
-                          )}
-                        </Menu.Item>
+                              </>
+                            )}
+                          </Menu.Item>
+                          <Menu.Item>
+                            {({ active, close }) => (
+                              <>
+                                <Button
+                                  className={classNames(
+                                    active ? "bg-gray-100" : "",
+                                    "flex w-full px-4 py-2 text-sm text-gray-700"
+                                  )}
+                                  variant="text"
+                                  color="primary"
+                                  endIcon={<PersonOutlineIcon />}
+                                  onClick={() => {
+                                    setLoading(true);
+                                    router.push("/protected/user/profile");
+                                    setTimeout(() => {
+                                      setLoading(false);
+                                      close();
+                                    }, 3000);
+                                  }}
+                                >
+                                  {loading ? (
+                                    <LoadingDots color="#808080" />
+                                  ) : (
+                                    "Profile"
+                                  )}
+                                </Button>
+                              </>
+                            )}
+                          </Menu.Item>
+                          <Menu.Item>
+                            {({ active, close }) => (
+                              <>
+                                <Button
+                                  className={classNames(
+                                    active ? "bg-gray-100" : "",
+                                    "flex w-full px-4 py-2 text-sm text-gray-700"
+                                  )}
+                                  variant="text"
+                                  color="error"
+                                  endIcon={<LogoutIcon />}
+                                  onClick={signOut}
+                                >
+                                  Sign out
+                                </Button>
+                                {/* <button
+                                  className={classNames(
+                                    active ? "bg-gray-100" : "",
+                                    "flex w-full px-4 py-2 text-sm text-gray-700"
+                                  )}
+                                  onClick={() => signOut()}
+                                >
+                                  Sign out
+                                </button> */}
+                              </>
+                            )}
+                          </Menu.Item>
+                        </>
                       ) : (
                         <Menu.Item>
                           {({ active }) => (
@@ -149,66 +191,89 @@ export default function Navbar({ user }: { user: any }) {
           </div>
 
           <Disclosure.Panel className="sm:hidden">
-            <div className="space-y-1 pt-2 pb-3">
-              {navigation.map((item) => (
-                <Disclosure.Button
-                  key={item.name}
-                  as="a"
-                  href={item.href}
-                  className={classNames(
-                    pathname === item.href
-                      ? "bg-slate-50 border-slate-500 text-slate-700"
-                      : "border-transparent text-gray-600 hover:bg-gray-50 hover:border-gray-300 hover:text-gray-800",
-                    "block pl-3 pr-4 py-2 border-l-4 text-base font-medium"
-                  )}
-                  aria-current={pathname === item.href ? "page" : undefined}
-                >
-                  {item.name}
-                </Disclosure.Button>
-              ))}
-            </div>
-            <div className="border-t border-gray-200 pt-4 pb-3">
-              {user ? (
-                <>
-                  <div className="flex items-center px-4">
-                    <div className="flex-shrink-0">
-                      <Image
-                        className="h-8 w-8 rounded-full"
-                        src={user.image}
-                        height={32}
-                        width={32}
-                        alt={`${user.name} avatar`}
-                      />
-                    </div>
-                    <div className="ml-3">
-                      <div className="text-base font-medium text-gray-800">
-                        {user.name}
-                      </div>
-                      <div className="text-sm font-medium text-gray-500">
-                        {user.email}
-                      </div>
-                    </div>
-                  </div>
-                  <div className="mt-3 space-y-1">
-                    <button
-                      onClick={() => signOut()}
-                      className="block px-4 py-2 text-base font-medium text-gray-500 hover:bg-gray-100 hover:text-gray-800"
+            {({ close }) => (
+              <>
+                <div className="space-y-1 pt-2 pb-3">
+                  {navigation.map((item) => (
+                    <Disclosure.Button
+                      key={item.name}
+                      as="a"
+                      href={item.href}
+                      className={classNames(
+                        pathname === item.href
+                          ? "bg-slate-50 border-slate-500 text-slate-700"
+                          : "border-transparent text-gray-600 hover:bg-gray-50 hover:border-gray-300 hover:text-gray-800",
+                        "block pl-3 pr-4 py-2 border-l-4 text-base font-medium"
+                      )}
+                      aria-current={pathname === item.href ? "page" : undefined}
                     >
-                      Sign out
-                    </button>
-                  </div>
-                </>
-              ) : (
-                <div className="mt-3 space-y-1">
-                  <button
-                    onClick={() => signIn("github")}
-                    className="flex w-full px-4 py-2 text-base font-medium text-gray-500 hover:bg-gray-100 hover:text-gray-800"
-                  >
-                    Sign in
-                  </button>
+                      {item.name}
+                    </Disclosure.Button>
+                  ))}
                 </div>
-              )}
-            </div>
+                <div className="border-t border-gray-200 pt-4 pb-3">
+                  {user ? (
+                    <>
+                      <div className="flex items-center px-4">
+                        <div className="flex-shrink-0">
+                          <Image
+                            className="h-8 w-8 rounded-full"
+                            //src={user.image}
+                            src="/avatar.png"
+                            height={32}
+                            width={32}
+                            alt={`${user.name} avatar`}
+                          />
+                        </div>
+                        <div className="ml-3">
+                          <div className="text-base font-medium text-gray-800">
+                            {user.name}
+                          </div>
+                          <div className="text-sm font-medium text-gray-500">
+                            {user.email}
+                          </div>
+                        </div>
+                      </div>
+                      <div className="mt-3 space-y-1">
+                        <button
+                          onClick={() => {
+                            router.push("/protected/user/profile");
+                            setLoading(true);
+                            router.push("/protected/user/profile");
+                            setTimeout(() => {
+                              setLoading(false);
+                              close();
+                            }, 3000);
+                          }}
+                          className="block px-4 py-2 text-base font-medium text-gray-500 hover:bg-gray-100 hover:text-gray-800"
+                        >
+                          {loading ? (
+                            <LoadingDots color="#808080" />
+                          ) : (
+                            "Profile"
+                          )}
+                        </button>
+                        <button
+                          onClick={() => signOut()}
+                          className="block px-4 py-2 text-base font-medium text-gray-500 hover:bg-gray-100 hover:text-gray-800"
+                        >
+                          Sign out
+                        </button>
+                      </div>
+                    </>
+                  ) : (
+                    <div className="mt-3 space-y-1">
+                      <button
+                        onClick={() => signIn("github")}
+                        className="flex w-full px-4 py-2 text-base font-medium text-gray-500 hover:bg-gray-100 hover:text-gray-800"
+                      >
+                        Sign in
+                      </button>
+                    </div>
+                  )}
+                </div>
+              </>
+            )}
           </Disclosure.Panel>
         </>
       )}

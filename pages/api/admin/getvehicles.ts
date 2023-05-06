@@ -9,7 +9,7 @@ export default async function handler(
   const query =
     'SELECT CONCAT(year," ",model) AS "label", vehicle_ID AS "id" FROM Vehicles';
   // create the connection
-  const pool = mysql.createPool({
+  const connection = await mysql.createConnection({
     host: process.env.DB_HOST,
     user: process.env.DB_USER,
     password: process.env.DB_PASS,
@@ -17,8 +17,8 @@ export default async function handler(
   });
 
   try {
-    const [rows] = await pool.query(query);
-
+    const [rows] = await connection.query(query);
+    connection.end();
     //console.log(rows);
     res.status(200).json(rows);
   } catch (error) {

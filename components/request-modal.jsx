@@ -9,8 +9,23 @@ import {
   DialogActions,
   InputLabel,
   Autocomplete,
+  Paper,
+  Table,
+  TableBody,
+  TableCell,
+  TableContainer,
+  TableHead,
+  TableRow,
   // InputAdornment,
 } from "@mui/material";
+import SportsScoreIcon from "@mui/icons-material/SportsScore";
+import PlaceIcon from "@mui/icons-material/Place";
+import AccessTimeIcon from "@mui/icons-material/AccessTime";
+import PersonOutlineIcon from "@mui/icons-material/PersonOutline";
+import AirlineSeatReclineExtraIcon from "@mui/icons-material/AirlineSeatReclineExtra";
+import AttachMoneyIcon from "@mui/icons-material/AttachMoney";
+import DirectionsCarIcon from "@mui/icons-material/DirectionsCar";
+import SendIcon from "@mui/icons-material/Send";
 import InputAdornment from "@mui/material/InputAdornment";
 import { AdapterDayjs } from "@mui/x-date-pickers/AdapterDayjs";
 import dayjs from "dayjs";
@@ -19,13 +34,10 @@ import { DateTimePicker } from "@mui/x-date-pickers/DateTimePicker";
 import React, { useEffect, useState, useReducer } from "react";
 import toast from "react-hot-toast";
 
-export default function RideModalBox(props) {
-  const [ride, setRide] = useState(null);
-  const [raw, setRaw] = useState(null);
-  const [addresses, setAddresses] = useState([]);
-  const [drivers, setDrivers] = useState([]);
-  const [vehicles, setVehicles] = useState([]);
+export default function RequestModalBox(props) {
+  const [ride, setRide] = useState({});
   const [isLoading, setLoading] = useState(true);
+  const [errorMessage, setError] = useState("");
 
   const handleClose = () => {
     props.modalHandler(false);
@@ -35,37 +47,7 @@ export default function RideModalBox(props) {
 
   useEffect(() => {
     setLoading(true);
-    fetch(`/api/admin/getaddresses`, {
-      method: "POST",
-      body: JSON.stringify({ id }),
-      headers: { "Content-Type": "application/json" },
-    })
-      .then((res) => res.json())
-      .then((data) => {
-        setAddresses(data);
-        console.log(data);
-      });
-    fetch(`/api/admin/getdrivers`, {
-      method: "POST",
-      body: JSON.stringify({ id }),
-      headers: { "Content-Type": "application/json" },
-    })
-      .then((res) => res.json())
-      .then((data) => {
-        setDrivers(data);
-        console.log(data);
-      });
-    fetch(`/api/admin/getvehicles`, {
-      method: "POST",
-      body: JSON.stringify({ id }),
-      headers: { "Content-Type": "application/json" },
-    })
-      .then((res) => res.json())
-      .then((data) => {
-        setVehicles(data);
-        console.log(data);
-      });
-    fetch(`/api/admin/get${props.type}`, {
+    fetch(`/api/user/getride`, {
       method: "POST",
       body: JSON.stringify({ id }),
       headers: { "Content-Type": "application/json" },
@@ -73,30 +55,26 @@ export default function RideModalBox(props) {
       .then((res) => res.json())
       .then((data) => {
         const rideData = data[0];
-        const rawRideData = data[1];
         setRide(rideData);
-        setFormInput(rawRideData);
-        setRaw(rawRideData);
         setFormInput({
-          time: dayjs(rawRideData.time).format("YYYY-MM-DD HH:mm:ss"),
-        });
-        setFormInput({
-          fare: parseFloat(rawRideData.fare),
+          //email: session.user.email,
+          ride: id,
         });
         setLoading(false);
+        console.log(id);
         console.log(rideData);
       });
   }, [id]);
 
   const [formInput, setFormInput] = useReducer(
     (state, newState) => ({ ...state, ...newState }),
-    {}
+    { ride: "", notes: "" }
   );
 
   const handleSubmit = () => {
     let data = { formInput };
 
-    fetch(`/api/admin/update${props.type}`, {
+    fetch(`/api/user/sendrequest`, {
       method: "POST",
       body: JSON.stringify(formInput),
       headers: {
@@ -104,34 +82,15 @@ export default function RideModalBox(props) {
       },
     })
       .then((response) => response.json())
-      .then((response) => console.log("Success:", JSON.stringify(response)))
+      .then((response) => {
+        //console.log(response);
+        if (response.hasOwnProperty("error")) {
+          toast.error(response.error);
+        } else {
+          toast.success("Request sent!");
+        }
+      })
       .catch((error) => console.error("Error:", error));
-  };
-
-  const handleSelect = (evt, newValue) => {
-    try {
-      const name = evt.target.id.split("-")[0];
-      setFormInput({ [name]: newValue.id });
-    } catch (error) {
-      console.error(error);
-    }
-    console.log(newValue);
-    console.log(formInput);
-  };
-
-  const handleTime = (newValue) => {
-    setFormInput({ time: newValue.format("YYYY-MM-DD HH:mm:ss") });
-  };
-
-  const handleFare = (evt) => {
-    const name = evt.target.name;
-    const newValue = evt.target.value;
-    setFormInput({ [name]: parseFloat(newValue) });
-  };
-  const handleSeats = (evt) => {
-    const name = evt.target.name;
-    const newValue = evt.target.value;
-    setFormInput({ [name]: parseInt(newValue) });
   };
 
   const handleInput = (evt) => {
@@ -145,127 +104,97 @@ export default function RideModalBox(props) {
   return (
     <div>
       <Dialog open onClose={handleClose} aria-labelledby="form-dialog-title">
-        <DialogTitle id="form-dialog-title">Edit</DialogTitle>
+        <DialogTitle id="form-dialog-title">Book Ride</DialogTitle>
         {isLoading ? (
           <p>Loading...</p>
         ) : (
           <DialogContent>
-            <DialogContentText>{`ID: ${props.id}`}</DialogContentText>
-            <br></br>
-            <Autocomplete
-              disablePortal
-              isOptionEqualToValue={(option, value) => option.label == value}
-              id="from"
-              options={addresses}
-              fullWidth
-              sx={{ width: 300 }}
-              defaultValue={ride.from}
-              onChange={handleSelect}
-              renderInput={(params) => <TextField {...params} label="From" />}
-            />
-            <br></br>
-            <Autocomplete
-              disablePortal
-              isOptionEqualToValue={(option, value) => option.label == value}
-              id="to"
-              options={addresses}
-              fullWidth
-              value={ride.to}
-              onChange={handleSelect}
-              renderInput={(params) => <TextField {...params} label="To" />}
-            />
-            <br></br>
-            <div>
-              <LocalizationProvider dateAdapter={AdapterDayjs}>
-                <DateTimePicker
-                  renderInput={(props) => (
-                    <TextField {...props} sx={{ m: 10, width: 300 }} />
-                  )}
-                  //textFieldStyle={{ width: "100%" }}
-                  name="picker"
-                  label="Time"
-                  margin="normal"
-                  defaultValue={dayjs(ride.time)}
-                  onChange={handleTime}
-                  //onChange={(newValue) => setValue(newValue)}
-                />
-              </LocalizationProvider>
-            </div>
-            <br></br>
-            <Autocomplete
-              disablePortal
-              isOptionEqualToValue={(option, value) => option.label == value}
-              id="driver"
-              margin="normal"
-              options={drivers}
-              fullWidth
-              defaultValue={ride.driver}
-              onChange={handleSelect}
-              renderInput={(params) => (
-                <TextField {...params} sx={{ mt: 2 }} label="Driver" />
-              )}
-            />
-            <br></br>
-            <Autocomplete
-              disablePortal
-              isOptionEqualToValue={(option, value) => option.label == value}
-              id="vehicle"
-              options={vehicles}
-              fullWidth
-              defaultValue={ride.vehicle}
-              onChange={handleSelect}
-              renderInput={(params) => (
-                <TextField {...params} label="Vehicle" />
-              )}
-            />
-            <br></br>
+            <DialogContentText>Ride details:</DialogContentText>
+            <>
+              <tr>
+                <td colSpan={5}>
+                  <TableContainer component={Paper}>
+                    <Table aria-label="simple table">
+                      <TableBody>
+                        <TableRow>
+                          <TableCell>
+                            <PlaceIcon sx={{ mr: 2 }} />
+                            From
+                          </TableCell>
+                          <TableCell align="left">{ride.source}</TableCell>
+                        </TableRow>
+                        <TableRow>
+                          <TableCell>
+                            <SportsScoreIcon sx={{ mr: 2 }} />
+                            To
+                          </TableCell>
+                          <TableCell align="left">{ride.destination}</TableCell>
+                        </TableRow>
+                        <TableRow>
+                          <TableCell>
+                            <AccessTimeIcon sx={{ mr: 2 }} />
+                            Leaving
+                          </TableCell>
+                          <TableCell align="left">{ride.time}</TableCell>
+                        </TableRow>
+                        <TableRow>
+                          <TableCell>
+                            <PersonOutlineIcon sx={{ mr: 2 }} />
+                            Driver
+                          </TableCell>
+                          <TableCell align="left">{ride.driver}</TableCell>
+                        </TableRow>
+                        <TableRow>
+                          <TableCell>
+                            <AirlineSeatReclineExtraIcon sx={{ mr: 2 }} />
+                            Seats
+                          </TableCell>
+                          <TableCell align="left">
+                            {ride.seats} (filled/offered)
+                          </TableCell>
+                        </TableRow>
+                        <TableRow>
+                          <TableCell>
+                            <AttachMoneyIcon sx={{ mr: 2 }} />
+                            Fare
+                          </TableCell>
+                          <TableCell align="left">${ride.fare}</TableCell>
+                        </TableRow>
+                        <TableRow>
+                          <TableCell>
+                            <DirectionsCarIcon sx={{ mr: 2 }} />
+                            Car
+                          </TableCell>
+                          <TableCell align="left">{ride.vehicle}</TableCell>
+                        </TableRow>
+                      </TableBody>
+                    </Table>
+                  </TableContainer>
+                </td>
+              </tr>
+            </>
             <TextField
               autoFocus
               margin="normal"
-              name="seats"
-              label="Available Seats"
-              type="number"
-              InputProps={{
-                inputProps: {
-                  min: raw.seats,
-                  step: 1,
-                },
-              }}
-              defaultValue={raw.seats}
-              onChange={handleSeats}
-              fullWidth
-            />
-            <TextField
-              autoFocus
-              margin="normal"
-              name="fare"
-              label="Fare"
-              type="number"
-              InputProps={{
-                inputProps: {
-                  min: 0,
-                  step: 0.01,
-                },
-                startAdornment: (
-                  <InputAdornment position="start">$</InputAdornment>
-                ),
-              }}
-              defaultValue={ride.fare}
-              onChange={handleFare}
-              fullWidth
-            />
-            <InputLabel id="label">Status</InputLabel>
-            <Select
-              native
-              labelId="label"
-              fullWidth
-              name="status"
-              defaultValue={ride.status}
+              name="notes"
+              label="Notes"
+              type="text"
+              // InputProps={{
+              //   inputProps: {
+              //     min: 0,
+              //     step: 0.01,
+              //   },
+              //   startAdornment: (
+              //     <InputAdornment position="start">$</InputAdornment>
+              //   ),
+              // }}
+              //defaultValue={ride.fare}
               onChange={handleInput}
-            >
-              <option value={"open"}>open</option>
-              <option value={"closed"}>closed</option>
-            </Select>
+              fullWidth
+            />
+            <DialogContentText>
+              Check your ride request later to see if ride owner accepted it!
+            </DialogContentText>
           </DialogContent>
         )}
 
@@ -274,17 +203,18 @@ export default function RideModalBox(props) {
             Cancel
           </Button>
           <Button
+            variant="contained"
+            endIcon={<SendIcon />}
             onClick={() => {
               handleSubmit();
               props.modalHandler(false);
-              toast.success("Changes saved! Refreshing...");
-              setTimeout(() => {
-                window.location.reload();
-              }, 2000);
+              //toast.success(errorMessage);
+              // setTimeout(() => {
+              //   window.location.reload();
+              // }, 2000);
             }}
-            color="primary"
           >
-            SAVE
+            SEND REQUEST
           </Button>
         </DialogActions>
       </Dialog>

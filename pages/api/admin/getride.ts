@@ -14,7 +14,7 @@ export default async function handler(
     'SELECT ride_ID, status, source as "from", destination "to", datetime as "time", driver, seats, fare, vehicle FROM Rides JOIN Users d ON driver = d.user_ID WHERE ride_ID=?';
 
   // create the connection
-  const pool = mysql.createPool({
+  const connection = await mysql.createConnection({
     host: process.env.DB_HOST,
     user: process.env.DB_USER,
     password: process.env.DB_PASS,
@@ -22,9 +22,9 @@ export default async function handler(
   });
 
   try {
-    const [rows] = await pool.query(query1, [id]);
-    const [row] = await pool.query(query2, [id]);
-
+    const [rows] = await connection.query(query1, [id]);
+    const [row] = await connection.query(query2, [id]);
+    connection.end();
     console.log(rows);
     rows.push(row[0]);
     console.log(rows);

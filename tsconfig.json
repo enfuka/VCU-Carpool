@@ -32,7 +32,9 @@
     "**/*.ts",
     "**/*.tsx",
     ".next/types/**/*.ts",
-    "components/user-edit-modal.jsx"
+    "components/user-edit-modal.jsx",
+    "app/protected/user/createride/places-autocomplete.jsx",
+    "app/protected/user/createride/ride-form.jsx"
   ],
   "exclude": ["node_modules"]
 }

@@ -11,7 +11,7 @@ export default async function handler(
     "SELECT user_ID, first_name, last_name, email, gender, phone, (SELECT COUNT(user_ID) FROM Admins WHERE user_ID=u.user_ID) AS isAdmin FROM Users u WHERE user_ID=?";
 
   // create the connection
-  const pool = mysql.createPool({
+  const connection = await mysql.createConnection({
     host: process.env.DB_HOST,
     user: process.env.DB_USER,
     password: process.env.DB_PASS,
@@ -19,8 +19,8 @@ export default async function handler(
   });
 
   try {
-    const [rows] = await pool.query(query, [id]);
-
+    const [rows] = await connection.query(query, [id]);
+    connection.end();
     //console.log(rows);
     res.status(200).json(rows);
   } catch (error) {

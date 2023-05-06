@@ -94,8 +94,6 @@ export default function RideModalBox(props) {
   );
 
   const handleSubmit = () => {
-    let data = { formInput };
-
     fetch(`/api/admin/update${props.type}`, {
       method: "POST",
       body: JSON.stringify(formInput),
@@ -104,7 +102,17 @@ export default function RideModalBox(props) {
       },
     })
       .then((response) => response.json())
-      .then((response) => console.log("Success:", JSON.stringify(response)))
+      .then((response) => {
+        //console.log(response);
+        if (response.hasOwnProperty("error")) {
+          toast.error(response.error);
+        } else {
+          toast.success("Vehicle is updated! Refreshing...");
+          setTimeout(() => {
+            window.location.reload();
+          }, 2000);
+        }
+      })
       .catch((error) => console.error("Error:", error));
   };
 

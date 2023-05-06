@@ -23,12 +23,13 @@ export default function Form({ type }: { type: "login" | "register" }) {
             password: e.currentTarget.password.value,
             // @ts-ignore
           }).then(({ ok, error }) => {
-            setLoading(false);
             if (ok) {
+              toast.success("Login succesfull, redirecting to main page...");
               router.push("/protected");
             } else {
               toast.error(error);
             }
+            setLoading(false);
           });
         } else {
           fetch("/api/auth/register", {
