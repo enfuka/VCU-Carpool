@@ -1,7 +1,8 @@
 export default function Head() {
   const title = "VCU Carpool";
-  const description = "Share a ride!";
-  const image = "https://nextjs-mysql-auth.vercel.app/thumbnail.png";
+  const description =
+    "Find rides around the city or post your ride to reduce the number of vehicles on the road!";
+  const image = "/thumbnail.png";
   return (
     <>
       <title>{title}</title>

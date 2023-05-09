@@ -6,8 +6,10 @@ export default async function handler(
 ) {
   const mysql = require("mysql2/promise");
 
+  const { id } = req.body;
+
   const query =
-    "SELECT vehicle_ID, license_plate, make, model, year, color, (SELECT CONCAT(first_name, ' ', last_name) FROM Users WHERE user_ID=owner) AS 'owner' FROM Vehicles";
+    "SELECT vehicle_ID, license_plate, make, model, year, color, (SELECT CONCAT(first_name, ' ', last_name) FROM Users WHERE user_ID=owner) AS 'owner' FROM Vehicles WHERE vehicle_ID=?;";
 
   // create the connection
   const connection = await mysql.createConnection({
@@ -15,11 +17,10 @@ export default async function handler(
     user: process.env.DB_USER,
     password: process.env.DB_PASS,
     database: process.env.DB_DB,
-    rowsAsArray: true,
   });
 
   try {
-    const [rows] = await connection.query(query);
+    const [rows] = await connection.query(query, [id]);
     connection.end();
     console.log(rows);
     res.status(200).json(rows);

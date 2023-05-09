@@ -43,6 +43,7 @@ export default function DriverRequestTable({ type }) {
   // @ts-expect-error
   function handleState(state) {
     setIsActive(state);
+    mutate();
   }
 
   const [user, ride] = [
@@ -175,7 +176,7 @@ export default function DriverRequestTable({ type }) {
   // @ts-expect-error
   const fetcher = (...args) => fetch(...args).then((res) => res.json());
 
-  const { data, error, isLoading } = useSWR(
+  const { data, error, isLoading, mutate } = useSWR(
     `/api/user/getdriverrequests`,
     fetcher
   );

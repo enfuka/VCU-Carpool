@@ -27,25 +27,25 @@ export default async function handler(
     database: process.env.DB_DB,
   });
 
-  const query = "CALL createRide (?,?,?,?,?,?,?,?,?,?,?,?,?,?);";
-  const values = [
-    source.street,
-    source.city,
-    source.state,
-    source.zip,
-    destination.street,
-    destination.city,
-    destination.state,
-    destination.zip,
-    time,
-    vehicle,
-    seats,
-    fare,
-    notes,
-    email,
-  ];
-
   try {
+    const query = "CALL createRide (?,?,?,?,?,?,?,?,?,?,?,?,?,?);";
+    const values = [
+      source.street,
+      source.city,
+      source.state,
+      source.zip,
+      destination.street,
+      destination.city,
+      destination.state,
+      destination.zip,
+      time,
+      vehicle,
+      seats,
+      fare,
+      notes,
+      email,
+    ];
+
     console.log(req.body);
     const [rows] = await connection.query(query, values);
     connection.end();

@@ -55,7 +55,7 @@ export default function RideModalBox(props) {
         setDrivers(data);
         console.log(data);
       });
-    fetch(`/api/admin/getvehicles`, {
+    fetch(`/api/admin/getvehicleselections`, {
       method: "POST",
       body: JSON.stringify({ id }),
       headers: { "Content-Type": "application/json" },

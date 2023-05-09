@@ -41,10 +41,11 @@ import DirectionsCarIcon from "@mui/icons-material/DirectionsCar";
 import SendIcon from "@mui/icons-material/Send";
 import toast from "react-hot-toast";
 import { useRouter } from "next/navigation";
+import FormControl, { useFormControl } from "@mui/material/FormControl";
 
 export default function RideForm() {
   const router = useRouter();
-  const [isActive, setIsActive] = useState(false);
+  const [isDisabled, setIsDisabled] = useState(true);
   const [isSelected, setIsSelected] = useState(false);
   const [vehicles, setVehicles] = useState([]);
   const [isLoading, setLoading] = useState(true);
@@ -83,6 +84,26 @@ export default function RideForm() {
     (state, newState) => ({ ...state, ...newState }),
     { notes: "", fare: 0, seats: 1 }
   );
+
+  useEffect(() => {
+    if (
+      formInput.hasOwnProperty("source") &&
+      formInput.hasOwnProperty("destination") &&
+      formInput.hasOwnProperty("time")
+    ) {
+      if (isSelected) {
+        setIsDisabled(false);
+      } else {
+        setIsDisabled(true);
+      }
+    }
+  }, [formInput, isSelected]);
+
+  useEffect(() => {
+    if (!isSelected && formInput.hasOwnProperty("time")) {
+      toast.error("Please select a source and destination from the dropdowns");
+    }
+  }, [isSelected]);
 
   function handleSource(place) {
     setIsSelected(true);
@@ -124,8 +145,10 @@ export default function RideForm() {
 
   const handleTampering = (evt) => {
     setIsSelected(false);
+    //const newValue = evt.target.value;
+    //setFormInput({ [name]: newValue });
     console.log(formInput);
-    console.log(isSelected);
+    //console.log(newValue);
   };
 
   const handleTime = (newValue) => {
@@ -207,139 +230,147 @@ export default function RideForm() {
         <CircularProgress color="inherit" />
         {/* <p>Loading..</p> */}
       </Backdrop>
-
-      <PlacesAutocomplete
-        autoFocus
-        handleClick={handleSource}
-        margin="normal"
-        fullWidth
-        name="source"
-        label="Going from..."
-        placeholder="Search address"
-        onChange={handleTampering}
-        InputProps={{
-          // inputProps: {
-          //   min: 0,
-          //   step: 0.01,
-          // },
-          startAdornment: (
-            <InputAdornment position="start">
-              <PlaceIcon />
-            </InputAdornment>
-          ),
-        }}
-      />
-
-      <PlacesAutocomplete
-        handleClick={handleDestination}
-        margin="normal"
-        fullWidth
-        name="destination"
-        label="Going to..."
-        placeholder="Search address"
-        onChange={handleTampering}
-        InputProps={{
-          // inputProps: {
-          //   min: 0,
-          //   step: 0.01,
-          // },
-          startAdornment: (
-            <InputAdornment position="start">
-              <SportsScoreIcon />
-            </InputAdornment>
-          ),
-        }}
-      />
-      <LocalizationProvider dateAdapter={AdapterDayjs}>
-        <br></br>
-        <DateTimePicker
-          disablePast={true}
-          renderInput={(props) => <TextField {...props} sx={{ m: 50 }} />}
-          //textFieldStyle={{ width: "100%" }}
-          // defaultValue={dayjs(ride.time)}
-          //onChange={(newValue) => setValue(newValue)}
-          //margin="normal"
-          name="picker"
-          label="Departure Time"
-          onChange={handleTime}
-        />
-      </LocalizationProvider>
-      <Autocomplete
-        disablePortal
-        isOptionEqualToValue={(option, value) => option.label == value}
-        id="vehicle"
-        options={vehicles}
-        fullWidth
-        defaultValue={vehicles[0]}
-        onChange={handleSelect}
-        renderInput={(params) => (
-          <TextField {...params} sx={{ my: 3 }} label="Vehicle" />
-        )}
-      />
-      <div className="flex flex-row space-x-8 w-full">
-        <TextField
+      <FormControl>
+        <PlacesAutocomplete
+          autoFocus
+          handleClick={handleSource}
           margin="normal"
-          name="seats"
-          label="Available Seats"
-          type="number"
+          fullWidth
+          name="source"
+          label="Going from..."
+          placeholder="Search address"
+          onChange={handleTampering}
           InputProps={{
-            inputProps: {
-              min: 1,
-              step: 1,
-              max: 10,
-            },
+            // inputProps: {
+            //   min: 0,
+            //   step: 0.01,
+            // },
             startAdornment: (
               <InputAdornment position="start">
-                <AirlineSeatReclineExtraIcon />
+                <PlaceIcon />
               </InputAdornment>
             ),
           }}
-          defaultValue={1}
-          onChange={handleSeats}
-          fullWidth
         />
+
+        <PlacesAutocomplete
+          handleClick={handleDestination}
+          margin="normal"
+          fullWidth
+          name="destination"
+          label="Going to..."
+          placeholder="Search address"
+          onChange={handleTampering}
+          InputProps={{
+            // inputProps: {
+            //   min: 0,
+            //   step: 0.01,
+            // },
+            startAdornment: (
+              <InputAdornment position="start">
+                <SportsScoreIcon />
+              </InputAdornment>
+            ),
+          }}
+        />
+        <LocalizationProvider dateAdapter={AdapterDayjs}>
+          <br></br>
+          <DateTimePicker
+            disablePast={true}
+            renderInput={(props) => <TextField {...props} sx={{ m: 50 }} />}
+            //textFieldStyle={{ width: "100%" }}
+            // defaultValue={dayjs(ride.time)}
+            //onChange={(newValue) => setValue(newValue)}
+            //margin="normal"
+            name="picker"
+            label="Departure Time"
+            onChange={handleTime}
+            required
+          />
+        </LocalizationProvider>
+        <Autocomplete
+          disablePortal
+          isOptionEqualToValue={(option, value) => option.label == value}
+          id="vehicle"
+          options={vehicles}
+          fullWidth
+          defaultValue={vehicles[0]}
+          onChange={handleSelect}
+          renderInput={(params) => (
+            <TextField {...params} sx={{ my: 3 }} label="Vehicle" />
+          )}
+          required
+        />
+        <div className="flex flex-row space-x-8 w-full">
+          <TextField
+            margin="normal"
+            name="seats"
+            label="Available Seats"
+            type="number"
+            InputProps={{
+              inputProps: {
+                min: 1,
+                step: 1,
+                max: 10,
+              },
+              startAdornment: (
+                <InputAdornment position="start">
+                  <AirlineSeatReclineExtraIcon />
+                </InputAdornment>
+              ),
+            }}
+            defaultValue={1}
+            onChange={handleSeats}
+            fullWidth
+            required
+          />
+          <TextField
+            margin="normal"
+            name="fare"
+            label="Fare"
+            type="number"
+            InputProps={{
+              inputProps: {
+                min: 0,
+                step: 0.01,
+              },
+              startAdornment: (
+                <InputAdornment position="start">$</InputAdornment>
+              ),
+            }}
+            defaultValue={0}
+            onChange={handleFare}
+            fullWidth
+            required
+          />
+        </div>
         <TextField
           margin="normal"
-          name="fare"
-          label="Fare"
-          type="number"
-          InputProps={{
-            inputProps: {
-              min: 0,
-              step: 0.01,
-            },
-            startAdornment: <InputAdornment position="start">$</InputAdornment>,
-          }}
-          defaultValue={0}
-          onChange={handleFare}
+          name="notes"
+          label="Notes"
+          type="text"
+          // InputProps={{
+          //   inputProps: {
+          //     min: raw.seats,
+          //     step: 1,
+          //   },
+          // }}
+          onChange={handleInput}
           fullWidth
         />
-      </div>
-      <TextField
-        margin="normal"
-        name="notes"
-        label="Notes"
-        type="text"
-        // InputProps={{
-        //   inputProps: {
-        //     min: raw.seats,
-        //     step: 1,
-        //   },
-        // }}
-        onChange={handleInput}
-        fullWidth
-      />
-      <br></br>
-      <Button
-        variant="contained"
-        endIcon={<DirectionsCarIcon />}
-        onClick={() => {
-          setOpen(true);
-          handleSubmit();
-        }}
-      >
-        CREATE RIDE
-      </Button>
+        <br></br>
+        <Button
+          disabled={isDisabled}
+          variant="contained"
+          endIcon={<DirectionsCarIcon />}
+          onClick={() => {
+            setOpen(true);
+            handleSubmit();
+          }}
+        >
+          CREATE RIDE
+        </Button>
+      </FormControl>
     </div>
   );
 }

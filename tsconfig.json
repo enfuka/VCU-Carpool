@@ -34,7 +34,8 @@
     ".next/types/**/*.ts",
     "components/user-edit-modal.jsx",
     "app/protected/user/createride/places-autocomplete.jsx",
-    "app/protected/user/createride/ride-form.jsx"
+    "app/protected/user/createride/ride-form.jsx",
+    "components/admin-table.jsx"
   ],
   "exclude": ["node_modules"]
 }

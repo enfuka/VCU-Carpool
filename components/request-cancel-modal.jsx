@@ -55,11 +55,11 @@ export default function RequestCancelModalBox(props) {
         if (response.hasOwnProperty("error")) {
           toast.error(response.error);
         } else {
-          toast.success("Request Cancelled! Refreshing...");
+          toast.success("Request Cancelled!");
         }
-        setTimeout(() => {
-          window.location.reload();
-        }, 2000);
+        // setTimeout(() => {
+        //   window.location.reload();
+        // }, 2000);
       })
       .catch((error) => console.error("Error:", error));
   };

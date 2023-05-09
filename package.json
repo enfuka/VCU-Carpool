@@ -32,6 +32,7 @@
     "react-google-autocomplete": "^2.7.3",
     "react-hot-toast": "^2.4.0",
     "react-loading-overlay": "^1.0.1",
+    "styled-components": "^5.3.10",
     "swr": "^2.1.2"
   },
   "devDependencies": {

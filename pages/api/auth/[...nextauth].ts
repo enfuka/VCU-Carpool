@@ -41,18 +41,17 @@ export default NextAuth({
         if (adminArr[0].cnt === 1) {
           isAdmin = true;
         }
-        console.log(adminArr);
-        console.log(isAdmin);
+
+        console.log("isAdmin:", isAdmin);
 
         const userArr = await res1.json();
         const user = userArr[0];
-        user.image = isAdmin;
-        console.log(user);
-        console.log(user.password);
+        console.log("userLogin:", user);
         // if user doesn't exist or password doesn't match
         if (!user || !(await compare(password, user.password))) {
-          throw new Error("Invalid username or password");
+          throw new Error("Invalid email or password");
         }
+        user.image = isAdmin;
         return user;
       },
     }),
