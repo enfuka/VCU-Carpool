@@ -42,6 +42,9 @@ export default function RequestTable({ type }) {
   // @ts-expect-error
   function handleState(state) {
     setIsActive(state);
+    setTimeout(() => {
+      mutate();
+    }, 2000);
   }
 
   const columns = [
@@ -98,7 +101,7 @@ export default function RequestTable({ type }) {
               break;
             case "Accepted":
               return (
-                <div className="flex flex-wrap gap-1 place-content-center">
+                <div className="flex flex-wrap gap-1 place-content-start">
                   <Chip label={status} color="success" />
                   <Button
                     variant="outlined"
@@ -134,7 +137,10 @@ export default function RequestTable({ type }) {
   // @ts-expect-error
   const fetcher = (...args) => fetch(...args).then((res) => res.json());
 
-  const { data, error, isLoading } = useSWR(`/api/user/getrequests`, fetcher);
+  const { data, error, isLoading, mutate } = useSWR(
+    `/api/user/getrequests`,
+    fetcher
+  );
 
   if (error) return <div>failed to load</div>;
   if (isLoading)

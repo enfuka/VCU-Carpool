@@ -63,10 +63,10 @@ export default function DriverRespondModalBox(props) {
         if (response.hasOwnProperty("error")) {
           toast.error(response.error);
         } else {
-          toast.success("Responded! Refreshing...");
-          setTimeout(() => {
-            window.location.reload();
-          }, 2000);
+          toast.success("Responded!");
+          // setTimeout(() => {
+          //   window.location.reload();
+          // }, 2000);
         }
       })
       .catch((error) => console.error("Error:", error));
@@ -86,10 +86,10 @@ export default function DriverRespondModalBox(props) {
         if (response.hasOwnProperty("error")) {
           toast.error(response.error);
         } else {
-          toast.success("Responded! Refreshing...");
-          setTimeout(() => {
-            window.location.reload();
-          }, 2000);
+          toast.success("Responded!");
+          // setTimeout(() => {
+          //   window.location.reload();
+          // }, 2000);
         }
       })
       .catch((error) => console.error("Error:", error));

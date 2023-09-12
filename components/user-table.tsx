@@ -43,30 +43,16 @@ export default function UserTable({ type }) {
 
   // Display toaster once after loading.
   useEffect(() => {
-    let ignore = false;
-
-    if (!ignore)
-      toast("Click on a ride to see the route on the map!", {
-        duration: 6000,
-        position: "bottom-center",
-        icon: "👆",
-      });
-    return () => {
-      ignore = true;
-    };
-  }, []);
-  useEffect(() => {
-    let ignore = false;
-
-    if (!ignore)
-      toast("Click on the arrow on the left to see ride details", {
-        duration: 8000,
-        position: "bottom-left",
-        icon: "👆",
-      });
-    return () => {
-      ignore = true;
-    };
+    toast("Click on a ride to see the route on the map!", {
+      duration: 6000,
+      position: "bottom-center",
+      icon: "👆",
+    });
+    toast("Click on the arrow on the left to see ride details", {
+      duration: 8000,
+      position: "bottom-left",
+      icon: "👆",
+    });
   }, []);
 
   const columns = [
@@ -309,12 +295,16 @@ export default function UserTable({ type }) {
       {isActive && (
         <RequestModalBox modalHandler={handleState} id={rowID} type={type} />
       )}
-      <MUIDataTable
-        title={`Available Rides:`}
-        data={data}
-        columns={columns}
-        options={options}
-      />
+      <div className=" flex flex-col justify-center items-center">
+        <div className="max-w-7xl w-full h-full flex flex-col justify-items-stretch my-5 ">
+          <MUIDataTable
+            title={`Available Rides:`}
+            data={data}
+            columns={columns}
+            options={options}
+          />
+        </div>
+      </div>
     </>
   );
 }

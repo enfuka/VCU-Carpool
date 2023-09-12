@@ -1,4 +1,5 @@
 "use client";
+import { useRouter } from "next/navigation";
 
 import { Fragment, useState } from "react";
 import { usePathname } from "next/navigation";
@@ -9,7 +10,6 @@ import Image from "next/image";
 import { Button } from "@mui/material";
 import LogoutIcon from "@mui/icons-material/Logout";
 import PersonOutlineIcon from "@mui/icons-material/PersonOutline";
-import { useRouter } from "next/navigation";
 import LoadingDots from "@/components/loading-dots";
 
 const navigation = [
@@ -25,7 +25,6 @@ function classNames(...classes: string[]) {
 export default function Navbar({ user }: { user: any }) {
   const router = useRouter();
   const pathname = usePathname();
-  const [loading, setLoading] = useState(false);
 
   return (
     <Disclosure as="nav" className="z-50 bg-white shadow-sm">
@@ -113,25 +112,17 @@ export default function Navbar({ user }: { user: any }) {
                                   color="primary"
                                   endIcon={<PersonOutlineIcon />}
                                   onClick={() => {
-                                    setLoading(true);
                                     router.push("/protected/user/profile");
-                                    setTimeout(() => {
-                                      setLoading(false);
-                                      close();
-                                    }, 3000);
+                                    close();
                                   }}
                                 >
-                                  {loading ? (
-                                    <LoadingDots color="#808080" />
-                                  ) : (
-                                    "Profile"
-                                  )}
+                                  Profile
                                 </Button>
                               </>
                             )}
                           </Menu.Item>
                           <Menu.Item>
-                            {({ active, close }) => (
+                            {({ active }) => (
                               <>
                                 <Button
                                   className={classNames(
@@ -141,7 +132,9 @@ export default function Navbar({ user }: { user: any }) {
                                   variant="text"
                                   color="error"
                                   endIcon={<LogoutIcon />}
-                                  onClick={signOut}
+                                  onClick={() => {
+                                    signOut();
+                                  }}
                                 >
                                   Sign out
                                 </Button>
@@ -238,20 +231,11 @@ export default function Navbar({ user }: { user: any }) {
                         <button
                           onClick={() => {
                             router.push("/protected/user/profile");
-                            setLoading(true);
-                            router.push("/protected/user/profile");
-                            setTimeout(() => {
-                              setLoading(false);
-                              close();
-                            }, 3000);
+                            close();
                           }}
                           className="block px-4 py-2 text-base font-medium text-gray-500 hover:bg-gray-100 hover:text-gray-800"
                         >
-                          {loading ? (
-                            <LoadingDots color="#808080" />
-                          ) : (
-                            "Profile"
-                          )}
+                          Profile
                         </button>
                         <button
                           onClick={() => signOut()}
