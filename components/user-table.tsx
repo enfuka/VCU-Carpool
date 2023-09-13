@@ -295,12 +295,16 @@ export default function UserTable({ type }) {
       {isActive && (
         <RequestModalBox modalHandler={handleState} id={rowID} type={type} />
       )}
-      <MUIDataTable
-        title={`Available Rides:`}
-        data={data}
-        columns={columns}
-        options={options}
-      />
+      <div className=" flex flex-col justify-center items-center">
+        <div className="max-w-7xl w-full h-full flex flex-col justify-items-stretch my-5 ">
+          <MUIDataTable
+            title={`Available Rides:`}
+            data={data}
+            columns={columns}
+            options={options}
+          />
+        </div>
+      </div>
     </>
   );
 }

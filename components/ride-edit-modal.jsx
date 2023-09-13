@@ -107,10 +107,10 @@ export default function RideModalBox(props) {
         if (response.hasOwnProperty("error")) {
           toast.error(response.error);
         } else {
-          toast.success("Vehicle is updated! Refreshing...");
-          setTimeout(() => {
-            window.location.reload();
-          }, 2000);
+          toast.success("Ride is updated!");
+          // setTimeout(() => {
+          //   window.location.reload();
+          // }, 2000);
         }
       })
       .catch((error) => console.error("Error:", error));
@@ -285,14 +285,10 @@ export default function RideModalBox(props) {
             onClick={() => {
               handleSubmit();
               props.modalHandler(false);
-              toast.success("Changes saved! Refreshing...");
-              setTimeout(() => {
-                window.location.reload();
-              }, 2000);
             }}
             color="primary"
           >
-            SAVE
+            SAVE  
           </Button>
         </DialogActions>
       </Dialog>

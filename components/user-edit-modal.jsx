@@ -153,10 +153,10 @@ export default function UserModalBox(props) {
             onClick={() => {
               handleSubmit();
               props.modalHandler(false);
-              toast.success("Changes saved! Refreshing...");
-              setTimeout(() => {
-                window.location.reload();
-              }, 2000);
+              toast.success("Changes saved!");
+              // setTimeout(() => {
+              //   window.location.reload();
+              // }, 2000);
             }}
             color="primary"
           >

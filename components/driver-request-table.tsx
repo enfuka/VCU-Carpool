@@ -43,7 +43,9 @@ export default function DriverRequestTable({ type }) {
   // @ts-expect-error
   function handleState(state) {
     setIsActive(state);
-    mutate();
+    setTimeout(() => {
+      mutate();
+    }, 2000);
   }
 
   const [user, ride] = [

@@ -23,10 +23,16 @@ export default function AdminTable({ type }) {
 
   function handleState(state) {
     setIsActive(state);
+    setTimeout(() => {
+      mutate();
+    }, 2000);
   }
 
   function handleState2(state) {
     setIsActive2(state);
+    setTimeout(() => {
+      mutate();
+    }, 2000);
   }
 
   const handleDelete = () => {
@@ -46,9 +52,6 @@ export default function AdminTable({ type }) {
           toast.error(response.error);
         } else {
           toast.success("Record is deleted!");
-          setTimeout(() => {
-            mutate();
-          }, 2000);
         }
       })
       .catch((error) => console.error("Error:", error));
