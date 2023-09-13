@@ -2,6 +2,7 @@
 import "@/styles/globals.css";
 import { Inter } from "@next/font/google";
 import Toaster from "@/components/toaster";
+import Footer from "@/components/Footer";
 
 const inter = Inter({
   subsets: ["latin"],
