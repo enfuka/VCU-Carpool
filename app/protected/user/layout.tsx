@@ -1,5 +1,6 @@
 import { Suspense } from "react";
 import Nav from "./nav";
+import Footer from "@/components/footer";
 
 export default function DashboardLayout({
   children,
@@ -13,6 +14,7 @@ export default function DashboardLayout({
         <Nav />
       </Suspense>
       {children}
+      <Footer />
     </section>
   );
 }
